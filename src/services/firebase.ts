@@ -2,25 +2,35 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
-import { getAnalytics } from "firebase/analytics";
-import dotenv from "dotenv";
-dotenv.config()
+import Constants from "expo-constants";
+
+const extra =
+    (Constants.expoConfig?.extra as Record<string, string>) ||
+    (Constants.manifest?.extra as Record<string, string>) ||
+    {};
+
+if (!extra.FIREBASE_API_KEY) {
+    throw new Error("Missing Firebase config values. Check your app.config.ts extra section.");
+}
 
 const firebaseConfig = {
-    apiKey: process.env.FIREBASE_API_KEY,
-    authDomain: process.env.AUTH_DOMAIN,
-    projectId: process.env.PROJECT_ID,
-    storageBucket: process.env.STORAGE_BUCKET,
-    messagingSenderId: process.env.MESSAGING_SENDER_ID,
-    appId: process.env.APP_ID,
-    measurementId: process.env.MEASUREMENT_ID
+    apiKey: extra.FIREBASE_API_KEY,
+    authDomain: extra.AUTH_DOMAIN,
+    projectId: extra.PROJECT_ID,
+    storageBucket: extra.STORAGE_BUCKET,
+    messagingSenderId: extra.MESSAGING_SENDER_ID,
+    appId: extra.APP_ID,
+    measurementId: extra.MEASUREMENT_ID,
 };
+console.log(" Firebase config:", firebaseConfig);
 
-//initialize firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore();
-const storage = getStorage();
-const auth = getAuth();
-const analytics = getAnalytics();
 
-export { app, db, auth, storage, analytics };
+const db = getFirestore(app);
+const storage = getStorage(app);
+const auth = getAuth(app);
+
+
+
+export { app, db, auth, storage };
