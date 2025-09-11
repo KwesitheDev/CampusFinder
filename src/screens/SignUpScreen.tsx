@@ -27,7 +27,7 @@ const SignupScreen: React.FC = () => {
         setError(null);
         setLoading(true);
         if (!STUDENT_ID_REGEX.test(studentId)) {
-            setError('Invalid student ID. Must be format UEW123456');
+            setError('Invalid student ID. Must be format 1234567890');
             setLoading(false);
             return;
         }
@@ -61,7 +61,7 @@ const SignupScreen: React.FC = () => {
                 label="Student ID"
                 value={studentId}
                 onChangeText={setStudentId}
-                placeholder="e.g., UEW123456"
+                placeholder="e.g., 1234567890"
             />
             {error && <Text style={styles.error}>{error}</Text>}
             <Button title="Sign Up" onPress={handleSignup} disabled={loading} />
