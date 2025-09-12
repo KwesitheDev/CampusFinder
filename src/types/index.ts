@@ -9,7 +9,7 @@ export interface Item {
     description: string
     type: 'lost' | 'found'
     location: string
-    photoUrl: string
+    photoUrl?: string
     createdAt: string
     category: string
 }
