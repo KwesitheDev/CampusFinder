@@ -46,18 +46,23 @@ export const reportItem = async (
 
 export const searchItems = async (type: 'lost' | 'found', searchTerm?: string): Promise<Item[]> => {
     try {
-        let q = query(collection(db, 'items'), where('type', '==', type), orderBy('createdAt', 'desc'));
-
-        if (searchTerm) {
-            // Note: Firestore doesn't support full-text search; using basic filtering
-            q = query(q, where('description', '>=', searchTerm), where('description', '<=', searchTerm + '\uf8ff'));
-        }
-
+        const q = query(collection(db, 'items'), where('type', '==', type), orderBy('createdAt', 'desc'));
         const querySnapshot = await getDocs(q);
-        const items: Item[] = [];
+        let items: Item[] = [];
         querySnapshot.forEach((doc) => {
             items.push({ id: doc.id, ...doc.data() } as Item);
         });
+
+        // Client-side filtering for search term
+        if (searchTerm) {
+            const lowerSearchTerm = searchTerm.toLowerCase();
+            items = items.filter(
+                (item) =>
+                    item.category.toLowerCase().includes(lowerSearchTerm) ||
+                    item.description.toLowerCase().includes(lowerSearchTerm) ||
+                    item.location.toLowerCase().includes(lowerSearchTerm)
+            );
+        }
 
         return items;
     } catch (error: any) {
