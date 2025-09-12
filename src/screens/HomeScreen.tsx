@@ -10,6 +10,9 @@ type RootStackParamList = {
     Login: undefined;
     Signup: undefined;
     Home: undefined;
+    ReportLost: undefined;
+    ReportFound: undefined;
+    Search: undefined;
 };
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -30,6 +33,9 @@ const HomeScreen: React.FC = () => {
         <View style={styles.container}>
             <Text style={styles.title}>CampusFinder Dashboard</Text>
             <Text style={styles.subtitle}>Welcome! You are logged in.</Text>
+            <Button title="Report Lost Item" onPress={() => navigation.navigate('ReportLost')} />
+            <Button title="Report Found Item" onPress={() => navigation.navigate('ReportFound')} />
+            <Button title="Search Items" onPress={() => navigation.navigate('Search')} />
             <Button title="Logout" onPress={handleLogout} />
         </View>
     );
