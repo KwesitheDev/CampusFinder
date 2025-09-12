@@ -13,3 +13,17 @@ export interface Item {
     createdAt: string
     category: string
 }
+
+export interface Message {
+    id: string
+    chatId: string
+    senderId: string
+    text: string
+    createdAt: string
+}
+
+export interface Chat {
+    id: string
+    participants: string[]
+    itemId: string
+}
