@@ -1,15 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, TextInput } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { COLORS } from '../utils/constants';
 import { searchItems } from '../services/itemService';
 import ItemCard from '../components/ItemCard';
 import { Item } from '../types';
+
+type RootStackParamList = {
+    Login: undefined;
+    Signup: undefined;
+    Home: undefined;
+    ReportLost: undefined;
+    ReportFound: undefined;
+    Search: undefined;
+    Chat: { chatId: string; recipientId: string };
+    Profile: { userId: string; itemId: string };
+};
+
+type SearchScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Search'>;
 
 const SearchScreen: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [lostItems, setLostItems] = useState<Item[]>([]);
     const [foundItems, setFoundItems] = useState<Item[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const navigation = useNavigation<SearchScreenNavigationProp>();
 
     useEffect(() => {
         const fetchItems = async () => {
@@ -25,6 +41,10 @@ const SearchScreen: React.FC = () => {
         fetchItems();
     }, [searchTerm]);
 
+    const handleItemPress = (item: Item) => {
+        navigation.navigate('Profile', { userId: item.userId, itemId: item.id });
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Search Items</Text>
@@ -38,14 +58,18 @@ const SearchScreen: React.FC = () => {
             <Text style={styles.sectionTitle}>Lost Items</Text>
             <FlatList
                 data={lostItems}
-                renderItem={({ item }) => <ItemCard item={item} />}
+                renderItem={({ item }) => (
+                    <ItemCard item={item} onPress={() => handleItemPress(item)} />
+                )}
                 keyExtractor={(item) => item.id}
                 ListEmptyComponent={<Text style={styles.empty}>No lost items found</Text>}
             />
             <Text style={styles.sectionTitle}>Found Items</Text>
             <FlatList
                 data={foundItems}
-                renderItem={({ item }) => <ItemCard item={item} />}
+                renderItem={({ item }) => (
+                    <ItemCard item={item} onPress={() => handleItemPress(item)} />
+                )}
                 keyExtractor={(item) => item.id}
                 ListEmptyComponent={<Text style={styles.empty}>No found items found</Text>}
             />
