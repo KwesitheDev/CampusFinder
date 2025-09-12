@@ -1,7 +1,9 @@
 import { collection, addDoc, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from './firebase';
+import { logEvent, getAnalytics } from 'firebase/analytics';
+import { db, storage, app } from './firebase';
 import { Item } from '../types';
+import { sendPushNotification } from './notificationService';
 
 export const reportItem = async (
     userId: string,
@@ -19,7 +21,6 @@ export const reportItem = async (
 
         let photoUrl: string | undefined;
         if (photoUri) {
-            // Upload photo to Firebase Storage
             const response = await fetch(photoUri);
             const blob = await response.blob();
             const photoRef = ref(storage, `items/${userId}/${Date.now()}.jpg`);
@@ -27,7 +28,6 @@ export const reportItem = async (
             photoUrl = await getDownloadURL(photoRef);
         }
 
-        // Save item to Firestore
         const docRef = await addDoc(collection(db, 'items'), {
             userId,
             type,
@@ -36,6 +36,27 @@ export const reportItem = async (
             location,
             photoUrl,
             createdAt: new Date().toISOString(),
+        });
+
+        // Log analytics event
+        const analytics = getAnalytics(app);
+        logEvent(analytics, `report_${type}_item`, { category, location });
+
+        // Check for potential matches
+        const oppositeType = type === 'lost' ? 'found' : 'lost';
+        const matchQuery = query(
+            collection(db, 'items'),
+            where('type', '==', oppositeType),
+            where('category', '==', category)
+        );
+        const querySnapshot = await getDocs(matchQuery);
+        querySnapshot.forEach((doc) => {
+            const matchedItem = doc.data();
+            sendPushNotification(
+                matchedItem.userId,
+                `Potential ${type} Item Match`,
+                `A ${type} item (${category}) was reported that may match your ${oppositeType} item.`
+            );
         });
 
         return { id: docRef.id, userId, type, category, description, location, photoUrl, createdAt: new Date().toISOString() };
@@ -53,7 +74,6 @@ export const searchItems = async (type: 'lost' | 'found', searchTerm?: string): 
             items.push({ id: doc.id, ...doc.data() } as Item);
         });
 
-        // Client-side filtering for search term
         if (searchTerm) {
             const lowerSearchTerm = searchTerm.toLowerCase();
             items = items.filter(
