@@ -1,21 +1,22 @@
 import React from 'react';
-import { StyleSheet, View, Text, Image } from 'react-native';
+import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
 import { Item } from '../types';
 import { COLORS } from '../utils/constants';
 
 interface ItemCardProps {
     item: Item;
+    onPress?: () => void;
 }
 
-const ItemCard: React.FC<ItemCardProps> = ({ item }) => {
+const ItemCard: React.FC<ItemCardProps> = ({ item, onPress }) => {
     return (
-        <View style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={onPress}>
             {item.photoUrl && <Image source={{ uri: item.photoUrl }} style={styles.image} />}
             <Text style={styles.title}>{item.category}</Text>
             <Text style={styles.description}>{item.description}</Text>
             <Text style={styles.location}>Location: {item.location}</Text>
             <Text style={styles.date}>Posted: {new Date(item.createdAt).toLocaleDateString()}</Text>
-        </View>
+        </TouchableOpacity>
     );
 };
 
