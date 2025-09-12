@@ -20,6 +20,7 @@ export const reportItem = async (
         }
 
         let photoUrl: string | undefined;
+
         if (photoUri) {
             const response = await fetch(photoUri);
             const blob = await response.blob();
