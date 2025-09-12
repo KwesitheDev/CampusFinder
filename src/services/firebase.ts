@@ -22,7 +22,7 @@ const firebaseConfig = {
     appId: extra.APP_ID,
     measurementId: extra.MEASUREMENT_ID,
 };
-console.log(" Firebase config:", firebaseConfig);
+//console.log(" Firebase config:", firebaseConfig);
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
