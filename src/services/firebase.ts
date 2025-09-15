@@ -1,7 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { getAuth } from "firebase/auth";
+import { getAnalytics } from "firebase/analytics";
+// @ts-ignore
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 
 const extra =
@@ -10,7 +13,9 @@ const extra =
     {};
 
 if (!extra.FIREBASE_API_KEY) {
-    throw new Error("Missing Firebase config values. Check your app.config.ts extra section.");
+    throw new Error(
+        "Missing Firebase config values. Check your app.config.ts extra section."
+    );
 }
 
 const firebaseConfig = {
@@ -22,15 +27,25 @@ const firebaseConfig = {
     appId: extra.APP_ID,
     measurementId: extra.MEASUREMENT_ID,
 };
-//console.log(" Firebase config:", firebaseConfig);
+
+console.log("Firebase config:", firebaseConfig);
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
+// ✅ Auth with persistence for React Native
+const auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+});
+
 const db = getFirestore(app);
 const storage = getStorage(app);
-const auth = getAuth(app);
 
+let analytics: ReturnType<typeof getAnalytics> | undefined;
+try {
+    analytics = getAnalytics(app);
+} catch {
+    console.log("Analytics is only supported on web.");
+}
 
-
-export { app, db, auth, storage };
+export { app, auth, db, storage, analytics };

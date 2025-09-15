@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../screens/LoginScreen';
-import SignupScreen from '../screens/SignupScreen';
+import SignupScreen from '../screens/SignUpScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ReportLostScreen from '../screens/ReportLostScreen';
 import ReportFoundScreen from '../screens/ReportFoundScreen';
